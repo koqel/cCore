@@ -14,6 +14,8 @@ Staff join - core.join
 
 Staff leave - core.leave
 
+Use of /gamemode - core.gamemode
+
 /motd
 
 /vote
