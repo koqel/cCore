@@ -30,6 +30,13 @@ mutechat - core.mutechat
 /tpall - core.teleportall
 /vanish - core.vanish
 /onlinestaff - core.staff
+/gamemode - core.gamemode
+/gamemode creative - core.gmc
+/gmc - core.gmc
+/gamemode survival - core.gms
+/gms - core.gms
+/gamemode spectator - core.gmsp
+/gmsp - core.gmsp
 
 Commands made by Maximus_yt:
 /sc
