@@ -1,0 +1,780 @@
+#-------------------------------------------
+#
+# cCore 
+#
+# Created by koqel & Maximus_yt
+# https://github.com/koqel/cCore
+#
+# Addons:
+# Vault
+# Ersatz
+# PlaceholderAPI
+# LiteBans or any other moderation system (might make a built in punishment system later on)
+# Any permission system that hooks into vault
+#-------------------------------------------
+
+#CONFIG
+options:
+	Version: 78468ce #DO NOT TOUCH THIS
+	server-type: servername
+	networkName: servername
+	noPerm: &cNo permission.
+	discordInvite: https://discord.gg/jDZJF8UUgE
+	storeLink: Your_Store_Link_Here
+	staffJoin: true
+	staffLeave: true
+	chatFormat: false #THIS CURRENTLY DOES NOT WORK, YOU WILL NEED LUCKPERMSCHAT OR ESSENTIALSCHAT
+	chatFormat: %player's prefix% &7%player's name%: %message%
+	alertPrefix: &7[&6&lALERT&7] &4
+	banCommand: /ban %player% 30d Left while frozen -s #USED WHEN SOMEBODY LOGS OUT WHILE FROZEN (/SS) - Default: "/ban %player% 30d Left while frozen -s"
+
+#Easy configurations
+command /motd [<string>]:
+	aliases: /core:motd
+	trigger:
+		send "&e&lWelcome to {@networkName}!"
+		send "&eMOTD LINE 1"
+		send "&eMOTD LINE 2"
+		send "&eMOTD LINE 3"
+		send "&eMOTD LINE 4" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
+
+command /vote [<string>]:
+	aliases: /core:vote
+	trigger:
+		send "&e&lYou can vote for us at all of these links"
+		send "&eVOTE LINK 1"
+		send "&eVOTE LINK 2"
+		send "&EVOTE LINK 3"
+		send "&eVOTE LINK 4" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
+
+command /rules [<string>]:
+	aliases: /core:rules
+	trigger:
+		send "&e&lOur server rules are listed below"
+		send "&eRULE 1"
+		send "&eRULE 2"
+		send "&eRULE 3"
+		send "&eRULE 4"
+		send "&eRULE 5"
+		send "&eRULE 6"
+		send "&eRULE 7" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
+
+command /alert [<string>]:
+	permission: core.alert
+	permission message: "{@noPerm}"
+	aliases: /bc, /broadcast, /core:alert, /core:bc, /core:broadcast
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: /alert <message>"
+		else:
+			broadcast "{@alertPrefix} %arg-1%"
+
+command /discord [<string>]:
+	aliases: /dc, /disc, /core:discord, /core:dc, /core:disc
+	trigger:
+		send "&eYou may join our Discord at &c{@discordInvite}&e!"
+
+command /store [<string>]:
+	aliases: /buy, /purchase, /core:store, /core:buy, /core:purchase
+	trigger:
+		send "&eYou may visit our Store at &c{@storeLink}&e!"
+
+#CODE
+command /sc [<string>]:
+	aliases: /staffchat, /core:sc, /schat, /core:schat, /core:staffchat
+	trigger:
+		if player does not have permission "core.staffchat":
+			send "{@noPerm}"
+		else:
+			set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+			if arg-1 is set:
+				loop all players:
+					if loop-player has permission "core.staffchat":
+						send "&b[S] &3[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7: &b%uncolored arg-1%" to loop-player
+			else:
+				if arg-1 is not set:
+					if {staffchat::%player's uuid%} is false:
+						set {staffchat::%player's uuid%} to true
+						send "&aYou've entered Staff Chat."
+					else:
+						if {staffchat::%player's uuid%} is true:
+							set {staffchat::%player's uuid%} to false
+							send "&cYou've exited Staff Chat."
+						else:
+							send "&cAn internal error occurred while attempting to perform this command. If you leave and rejoin, this should be fixed."
+on chat:
+	if message starts with "## ":
+		set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+		if player has permission "core.staffchat":
+			cancel event
+			set {_message} to last (length of message - 1) characters of message
+			send "&b[S] &3[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7:&b%uncolored {_message}%" to all players where [input has permission "core.staffchat"]
+on chat:
+	if {staffchat::%player's uuid%} is true:
+		if message does not start with "## ":
+			if player has permission "core.staffchat":
+				set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+				cancel event
+				send "&b[S] &3[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7: &b%uncolored message%" to all players where [input has permission "core.staffchat"]
+
+on chat:
+	if message starts with "@ ":
+		set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+		if player has permission "core.adminchat":
+			cancel event
+			set {_message} to last (length of message - 1) characters of message
+			send "&4[A] &c[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7:&c%uncolored {_message}%" to all players where [input has permission "core.adminchat"]
+on chat:
+	if {adminchat::%player's uuid%} is true:
+		if message does not start with "@ ":
+			if player has permission "core.adminchat":
+				set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+				cancel event
+				send "&4[A] &c[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7: &c%uncolored message%" to all players where [input has permission "core.adminchat"]
+
+command /report [<offlineplayer>] [<string>]:
+	aliases: /core:report
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: %colored {c1}%/report &f<player>"
+		else:
+			if arg-2 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				if arg-1 is player:
+					send "&cYou cannot report yourself!"
+				else:
+					if arg 1 is not online:
+						send "&cNo player matching &e%arg-1% &cis connected to this server."
+					else:
+						set {_waited.report::%player%} to difference between {report::%player%.lastused} and now
+						if {_waited.report::%player%} is less than a minute:
+							send "&cYou must wait before reporting another player."
+						else:
+							set {currentreport::%player%} to arg-1
+							open chest inventory with 1 rows named "&eReporting %arg-1%:" to player
+							set slot 0 of player's current inventory to diamond sword named "&6Combat Hacks"
+							set slot 1 of player's current inventory to sugar named "&6Movement Hacks"
+							set slot 2 of player's current inventory to writable book named "&6Other Hacks"
+							set slot 3 of player's current inventory to web named "&6Other"
+on inventory click:
+	if name of player's current inventory contains "&eReporting %{currentreport::%player%}%":
+		cancel event
+		set {rank::%{currentreport::%player%}%} to placeholder "vault_prefix_color" from {currentreport::%player%}
+		set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+		if index of event-slot is 0:
+			send "&aYour report has been submitted."
+			send "&b[S] &3[{@server-type}] %player% &chas reported %{currentreport::%player%}% for &6Combat Hacks." to all players where [input has permission "core.viewreport"]
+			close player's inventory
+			set {report::%player%.lastused} to now
+			delete {currentreport::%player%}
+		if index of event-slot is 1:
+			send "&aYour report has been submitted."
+			send "&b[S] &3[{@server-type}] %player% &chas reported %{currentreport::%player%}% for &6Movement Hacks." to all players where [input has permission "core.viewreport"]
+			close player's inventory
+			set {report::%player%.lastused} to now
+		if index of event-slot is 2:
+			send "&aYour report has been submitted."
+			send "&b[S] &3[{@server-type}] %player% &chas reported %{currentreport::%player%}% for &6Other Hacks." to all players where [input has permission "core.viewreport"]
+			close player's inventory
+			set {report::%player%.lastused} to now
+			delete {currentreport::%player%}
+		if index of event-slot is 3:
+			send "&aYour report has been submitted."
+			send "&b[S] &3[{@server-type}] %player% &chas reported %{currentreport::%player%}% for &6Other." to all players where [input has permission "core.viewreport"]
+			close player's inventory
+			set {report::%player%.lastused} to now
+			delete {currentreport::%player%}
+
+on join:
+	set join message to ""
+	set {staffchat::%player's uuid%} to false
+	set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+	if "{@staffJoin}" is "true":
+		if player has permission "core.join":
+			send "&b[S] %colored {rank-color::%player's uuid%}%%player% &3connected to &b{@server-type}&3." to all players where [input has permission "core.join"]
+
+on quit:
+	set quit message to ""
+	set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+	if "{@staffLeave}" is "true":
+		if player has permission "core.leave":
+			send "&b[S] %colored {rank-color::%player's uuid%}%%player% &3disconnected from &b{@server-type}&3." to all players where [input has permission "core.leave"]
+
+command /ping [<offlineplayer>] [<string>]:
+    aliases: core:ping
+    trigger:
+        if arg-1 is not set:
+            set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+            send "%colored {rank-color::%player's uuid%}%%player%&e's ping: &c%player's ping%ms&e."
+        else:
+            if arg-1 is not online:
+                send "&cError: ""&e%arg-1%&c"" is not online."
+            else:
+                if arg-1's group is "default":
+                    set {rank-color::%arg-1's uuid%} to "&8"
+                else:
+                    set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+                send "%colored {rank-color::%arg-1's uuid%}%%arg-1%&e's ping: &c%arg-1's ping%ms&e."
+
+on place:
+	if {build::%player's uuid%} is set:
+		if player is in world "world":
+			cancel event
+on break:
+	if {build::%player's uuid%} is set:
+		if player is in world "world":
+			cancel event
+
+on join:
+    set {build.%player's uuid%} to true
+
+command /buildmode [<string>]:
+	aliases: /build, /core:build, /core:buildmode
+	trigger:
+		if executor does not have permission "core.buildmode":
+			send "{@noPerm}"
+		else:
+			if arg-1 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				if {build::%player's uuid%} is not set: 
+					set {build::%player's uuid%} to true
+					send "&eToggled your build mode &coff&e."
+				else:
+					delete {build::%player's uuid%}
+					send "&eToggled your build mode &aon&e."
+
+command /t [<offlineplayer>] [<string>]:
+	aliases: /core:t
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+
+command /tell [<offlineplayer>] [<string>]:
+	aliases: /core:tell
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+
+command /pm [<offlineplayer>] [<string>]:
+	aliases: /privatemessage, /core:pm, /core:privatemessage
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+command /w [<offlineplayer>] [<string>]:
+	aliases: /core:w
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+command /whisper [<offlineplayer>] [<string>]:
+	aliases: /core:whisper
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+command /m [<offlineplayer>] [<string>]:
+	aliases: /core:m
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+command /msg [<offlineplayer>] [<string>]:
+	aliases: /core:msg
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+command /message [<offlineplayer>] [<string>]:
+	aliases: /core:message
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/message &f<target> <message>"
+		else:
+			if arg-2 is not set:
+				send "&eUsage: &e/message &f<target> <message>"
+			else:
+				if arg-1 is not online:
+					send "&cNo player matching &e%arg-1% &cis connected to this server."
+				else:
+					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
+					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					play sound "note.pling" with pitch 2 to arg-1
+					delete {msg::%player's uuid%::*}
+					add arg-1 to {msg::%player's uuid%::*}
+command /r [<string>]:
+	aliases: /core:r
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/reply &f<target> <message>"
+		else:
+			if {msg::%player's uuid%::*} is set:
+				execute player command "/w %{msg::%player's uuid%::*}% %arg-1%"
+			else:
+				send "&cYou have no one to reply to!"
+command /reply [<string>]:
+	aliases: /core:reply
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &e/reply &f<target> <message>"
+		else:
+			if {msg::%player's uuid%::*} is set:
+				execute player command "/w %{msg::%player's uuid%::*}% %arg-1%"
+			else:
+				send "&cYou have no one to reply to!"	
+
+command /clearchat [<string>]:
+	aliases: /cc, /core:clearchat, /core:cc
+	trigger:
+		if player does not have permission "core.clearchat":
+			send "{@noPerm}"
+		else:
+			if arg-1 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				if executor is not a player:
+					loop 500 times:
+						broadcast " "
+						broadcast ""
+					broadcast "&aChat has been cleared by &c&lConsole&a."
+					send "&b[S] &3[{@server-type}] &c&lConsole &3has cleared the chat." to all players where [input has permission "core.staff"]
+				else:
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					loop 500 times:
+						broadcast " "
+						broadcast ""
+					broadcast "&aChat has been cleared by %colored {rank-color::%player's uuid%}%%player%&a."
+					send "&b[S] &3[{@server-type}] %player% has cleared the chat." to all players where [input has permission "core.staff"]
+command /mutechat [<string>]:
+	aliases: /core:mutechat
+	trigger:
+		if executor doesn't have permission "core.mutechat":
+			send "{@noPerm}"
+		else:
+			if arg-1 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				if {ChatMode} is not set:
+					set {ChatMode} to 1
+					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+					broadcast "&cChat has been muted by %colored {rank-color::%player's uuid%}%%player%&c."
+					send "&b[S] &3[{@server-type}] %player% &3has muted the chat." to all players where [input has permission "core.staff"]
+				else:
+					if {ChatMode} is 1:
+						delete {ChatMode}
+						set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+						broadcast "&cChat has been unmuted by %colored {rank-color::%player's uuid%}%%player%&c."
+						send "&b[S] &3[{@server-type}] %player% &3has unmuted the chat." to all players where [input has permission "core.staff"]
+on chat:
+	if player does not have permission "core.mutechat.bypass":
+		if {ChatMode} is 1:
+			cancel event
+			send "&cYou cannot talk while the chat is muted."
+			stop
+		else:
+			stop
+
+command /freeze [<player>]:
+    aliases: /ss
+    permission: core.ss
+    permission message: {@noPerm}
+    trigger:
+        if argument has permission "core.ssexempt":
+            if arg-1 is set:
+                send "&cYou cannot freeze this player." to the player
+        else:
+            if arg-1 is set:
+                if {core.%argument%.frozen} isn't set:
+                    set {core.%argument%.frozen} to true
+                    set {core.%argument%.invincibility.frozen} to true
+                    send "&f█████████" to arg 1
+                    send "&f████&c█&f████" to arg 1
+                    send "&f███&c█&0█&c█&f███" to arg 1
+                    send "&f██&c█&6█&0█&6█&c█&f██" to arg 1
+                    send "&f██&c█&6█&0█&6█&c█&f██ &eYou've been frozen by a staff member." to arg 1
+                    send "&f██&c█&6█&0█&6█&c█&f██ &eIf you disconnect you will be &4&lBANNED&e." to arg 1
+                    send "&f█&c█&6█████&c█&f█ &ePlease connect to our discord." to arg 1
+                    send "&c█&6███&0█&6███&c█ &7{@discordInvite}" to arg 1
+                    send "&c█████████" to arg 1
+                    send "&f█████████" to arg 1
+                    send "&c%argument% &ehas been frozen." to the player
+                else:
+                    if {core.%argument%.frozen} is set:
+                        delete {core.%argument%.frozen}
+                        send "&eYou've been unfrozen. We are sorry for this inconvience." to the argument
+                        send "&eYou've unfroze &c%argument%" to the player
+                        reset arg-1's walk speed
+                        wait 5 seconds
+                        delete {core.%argument%.invincibility.frozen}
+        if arg-1 isn't set:
+            message "&eUsage: &c/freeze &f<target>"
+
+on player move:
+    if {core.%player%.frozen} is true:
+        set player's walk speed to 0
+
+on damage:
+    if {core.%victim%.invincibility.frozen} is true:
+        cancel event
+    if {core.%attacker%.invincibility.frozen} is true:
+        cancel event
+on quit:
+    if {core.%player%.frozen} is true:
+        execute console command "{@banCommand}"
+        delete {core.%player%.frozen}
+
+command /tp [<offline player>] [<string>]:
+	aliases: /core:tp
+	trigger:
+		if executor does not have permission "core.teleport":
+			send "{@noPerm}"
+		else:
+			if arg-1 is not set:
+				send "&eUsage: &6/teleport &f<target1>"
+			else:
+				if arg-2 is set:
+					send "&cThere was an error while processing your command. Is the syntax correct?"
+				else:
+					if arg-1 is not online:
+						send "&cNo player matching &e%arg-1% &cis connected to this server."
+					else:
+						teleport player to arg-1
+						send "&eYou've teleported to &c%arg-1%&e."
+						send "&7&o[%player%: &eteleported to %arg-1%&7&o]" to all players where [input has permission "core.staff"]
+command /teleport [<offline player>] [<string>]:
+	aliases: /core:teleport
+	trigger:
+		if executor does not have permission "core.command.teleport":
+			send "{@noPerm}"
+		else:
+			if arg-1 is not set:
+				send "&eUsage: &6/teleport &f<target1>"
+			else:
+				if arg-2 is set:
+					send "&cThere was an error while processing your command. Is the syntax correct?"
+				else:
+					if arg-1 is not online:
+						send "&cNo player matching &e%arg-1% &cis connected to this server."
+					else:
+						teleport player to arg-1
+						send "&eYou've teleported to &c%arg-1%&e."
+						send "&7&o[%player%: &eteleported to %arg-1%&7&o]" to all players where [input has permission "core.staff"]
+command /tphere [<offline player>] [<string>]:       
+	aliases: /core:tphere, /teleporthere, /core:teleporthere
+	trigger:
+		if executor does not have permission "core.teleporthere":
+			send "{@noPerm}"
+		else:
+			if arg-1 is not set:
+				send "&eUsage: &6/teleporthere &f<target1>"
+			else:
+				if arg-2 is set:
+					send "&cThere was an error while processing your command. Is the syntax correct?"
+				else:
+					if arg-1 is not online:
+						send "&cNo player matching &e%arg-1% &cis connected to this server."
+					else:
+						teleport arg-1 to player
+						send "&eYou've teleported &c%arg-1% &eto &cyou&e."
+						send "&7&o[%player%: &eteleported %arg-1% to %player%&7&o]" to all players where [input has permission "core.staff"]
+command /tpall [<string>]:       
+	aliases: /core:tpall
+	trigger:
+		if executor does not have permission "core.teleportall":
+			send "{@noPerm}"
+		else:
+			if arg-1 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				teleport all players to player
+				send "&eYou've teleported &call players &eto &cyou&e."
+				send "&7&o[%player%: &eteleported all players to %player%&7&o]" to all players where [input has permission "core.staff"]
+
+command /list [<string>]:
+	aliases: /who, /core:list, /core:who
+	trigger:
+		if arg-1 is set:
+			send "&cThere was an error while processing your command. Is the syntax correct?"
+		else:
+			set {_a} to capitalized "{@server-type}"
+			send "&eThere are &c%number of all players - size of {vanished::*}% players &econnected to &c%{_a}%&e."
+
+command /v [<string>]:
+	aliases: /vanish, /core:vanish, /core:v
+	trigger:
+		if executor does not have permission "core.vanish":
+			send "{@noPerm}"
+		else:
+			if arg-1 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				if {vanish::%player's uuid%} is not set:
+					if {vanished::*} doesn't contain player:
+						add player to {vanished::*}
+					send "&eYou're now &avanished&e."
+					send "&7&o[%player%: &evanished&7&o]" to all players where [input has permission "core.staff"]
+					set {vanish::%player's uuid%} to true
+				else:
+					if {vanished::*} contains player:
+						remove player from {vanished::*}
+					send "&eYou're now &cunvanished&e."
+					send "&7&o[%player%: &eunvanished&7&o]" to all players where [input has permission "core.staff"]
+					delete {vanish::%player's uuid%}
+on damage:
+	if {vanish::%victim's uuid%} is set:
+		cancel event
+	if {vanish::%attacker's uuid%} is set:
+		cancel event
+on server ping:
+	hide {vanished::*} from server list
+every 1 second:
+	loop all players:
+		if {tag::%loop-player's uuid%} is not set:
+			set {tag::%loop-player's uuid%} to ""
+		set {rank-color::%loop-player's uuid%} to placeholder "vault_prefix_color" from loop-player
+		set {_a} to capitalized "{@server-type}"
+#		set loop-player's tablist header to "%nl%%colored {c1}%&lSmuggler%nl%&7&oYou are connected to &e&o%{_a}%%nl%"
+#		set loop-player's tablist footer to "%nl%       &7Discord: &ediscord.smuggler.land       %nl%"
+		if {vanish::%loop-player's uuid%} is not set:
+			set loop-player's tab list name to "%colored {rank-color::%loop-player's uuid%}%%loop-player%"
+		else:
+			set loop-player's tab list name to "&7[V] %loop-player%"
+	loop all players:
+		loop all players:
+			if {vanish::%loop-player-1's uuid%} is true:
+				if loop-player-2 does not have permission "core.vanish":
+					hide loop-player-1 from loop-player-2 
+				else:
+					reveal loop-player-1 to loop-player-2
+			else:
+				reveal loop-player-1 to loop-player-2
+
+command /ccore [<string>]:
+	aliases: /core:ccore
+	trigger:
+		send "&c&m------------------------------------------"
+		send "&ecCore made by &ckoqel (Colton.##0001), Maximus_yt (Maximus_yt##4265 or Maximus_yt##0001)"
+		send "&eSpigot: https://www.spigotmc.org/members/koqel.1154279/"
+		send "&eVersion: &c{@Version}"
+		send "&c&m------------------------------------------"	
+
+on chat:
+	set {_lastchattedwait} to difference between {lastchatted::%player%} and now
+	if {_lastchattedwait} is less than 1 second:
+		if player does not have permission "core.staff":
+			cancel event
+			send "&cYou're on chat cooldown, please wait %difference between 1 second and {_lastchattedwait}%."
+	else:
+		set {lastchatted::%player%} to now
+on command:
+	if command contains ":":
+		if player is not op:
+			cancel event
+			send "&cThere was an error while processing your command. Is the syntax correct?"
+on command:
+	if command ends with "?":
+		cancel event
+		send "Unknown command. Type ""/help"" for help."
+on command:
+	if command is "luckperms" or "lp" or "perm" or "perms" or "permission" or "permissions" or "placeholderapi" or "papi" or "sk" or "skript" or "mvtp" or "multiversetp" or "mv teleport" or "mv tp" or "multiverse tp" or "multiversecore teleport" or "multiversecore tp" or "multiverse teleport" or "litebans" or "lbans":
+		if executor is not console:
+			if player is not op:
+				cancel event
+				send "Unknown command. Type ""/help"" for help."
+
+command /onlinestaff [<string>]:
+	aliases: /stafflist, /os, /sl, /core:sl, /core:os, /core:stafflist, /core:onlinestaff
+	trigger:
+		if executor does not have permission "core.staff":
+			send "{@noPerm}"
+		else:
+			if arg-1 is set:
+				send "&cThere was an error while processing your command. Is the syntax correct?"
+			else:
+				loop all players:
+					if loop-player has permission "core.staff":
+						set {rank-color::%loop-player's uuid%} to placeholder "vault_prefix_color" from loop-player
+						add "%colored {rank-color::%loop-player's uuid%}%%loop-player%&7" to {_onlinestaff::*}
+				if size of {_onlinestaff::*} is 0:
+					send "&eNo staff are currently online&e."
+				else:
+					set {_a} to "%colored {_onlinestaff::*}%"
+					replace all " and" in {_a} with ","
+					send "&7Processing..."
+					wait 0.5 seconds
+					send "&e&lOnline Staff:"
+					send " &e&l{@server-type}: %{_a}%"
+
+on chat:
+	set chat format to "%colored player's prefix%%player%&7: &f%uncolored message%"
+
+command /gamemode [<string>]:
+	aliases: /gm, /core:gm, /core:gamemode
+	permission: core.gamemode
+	permission message: {@noPerm}
+	trigger:
+		if arg-1 is not set:
+			send "&eUsage: &6/gamemode &f<mode>"
+		else if arg-1 is "creative":
+			if player has permission "core.gmc":
+				set player's gamemode to creative
+				send "&7&o[%player%: &eswitched to &ccreative &emode&7&o]" to all players where [input has permission "core.gamemode"]
+				send "&eSuccessfully set your gamemode to &cCreative&e."
+			else:
+				send "{@noPerm}"
+		else if arg-1 is "survival":
+			if player has permission "core.gms":
+				set player's gamemode to survival
+				send "&7&o[%player%: &eswitched to &csurvival &emode&7&o]" to all players where [input has permission "core.gamemode"]
+				send "&eSuccessfully set your gamemode to &cSurvival&e."
+			else:
+				send "{@noPerm}"
+		else if arg-1 is "spectator":
+			if player has permission "core.gmsp":
+				set player's gamemode to spectator
+				send "&7&o[%player%: &eswitched to &cspectator &emode&7&o]" to all players where [input has permission "core.gamemode"]
+				send "&eSuccessfully set your gamemode to &cSpectator&e."
+			else:
+				send "{@noPerm}"
+		else if arg-1 is "c":
+			if player has permission "core.gmc":
+				set player's gamemode to creative
+				send "&7&o[%player%: &eswitched to &ccreative &emode&7&o]" to all players where [input has permission "core.gamemode"]
+				send "&eSuccessfully set your gamemode to &cCreative&e."
+			else:
+				send "{@noPerm}"
+		else if arg-1 is "s":
+			if player has permission "core.gms":
+				set player's gamemode to survival
+				send "&7&o[%player%: &eswitched to &csurvival &emode&7&o]" to all players where [input has permission "core.gamemode"]
+				send "&eSuccessfully set your gamemode to &cSurvival&e."
+			else:
+				send "{@noPerm}"
+		else if arg-1 is "sp":
+			if player has permission "core.gmsp":
+				set player's gamemode to spectator
+				send "&7&o[%player%: &eswitched to &cspectator &emode&7&o]" to all players where [input has permission "core.gamemode"]
+				send "&eSuccessfully set your gamemode to &cSpectator&e."
+			else:
+				send "{@noPerm}"
+
+command /gmc:
+	permission: core.gmc
+	permission message: {@noPerm}
+	trigger:
+		set player's gamemode to creative
+		send "&7&o[%player%: &eswitched to &ccreative &emode&7&o]" to all players where [input has permission "core.gamemode"]
+		send "&eSuccessfully set your gamemode to &cCreative&e."
+
+command /gms:
+	permission: core.gms
+	permission message: {@noPerm}
+	trigger:
+		set player's gamemode to survival
+		send "&7&o[%player%: &eswitched to &csurvival &emode&7&o]" to all players where [input has permission "core.gamemode"]
+		send "&eSuccessfully set your gamemode to &cSurvival&e."
+
+command /gmsp:
+	permission: core.gmsp
+	permission message: {@noPerm}
+	trigger:
+		set player's gamemode to spectator
+		send "&7&o[%player%: &eswitched to &cspectator &emode&7&o]" to all players where [input has permission "core.gamemode"]
+		send "&eSuccessfully set your gamemode to &cSpectator&e."
