@@ -15,7 +15,7 @@
 
 #CONFIG
 options:
-	Version: 78468ce #DO NOT TOUCH THIS
+	Version: 6371f73 #DO NOT TOUCH THIS
 	server-type: servername
 	networkName: servername
 	noPerm: &cNo permission.
