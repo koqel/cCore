@@ -30,8 +30,6 @@ Use of /gamemode - core.gamemode
 
 /sc - core.staffchat
 
-/ac - core.adminchat
-
 /report
 
 /ping
