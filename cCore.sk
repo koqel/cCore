@@ -219,11 +219,9 @@ command /ping [<offlineplayer>] [<string>]:
 
 on place:
 	if {build::%player's uuid%} is set:
-		if player is in world "world":
 			cancel event
 on break:
 	if {build::%player's uuid%} is set:
-		if player is in world "world":
 			cancel event
 
 on join:
