@@ -18,6 +18,12 @@ options:
 	Version: 6371f73 #DO NOT TOUCH THIS
 	server-type: servername
 	networkName: servername
+	primaryColor: &e #MUST INCLUDE & 
+	secondaryColor: &c #MUST INCLUDE & 
+	errorColor: &c #THE COLOR OF ERRORS SUCH AS NO PLAYER ONLINE WITH A SPECIFIED USERNAME
+	msgColor: &e #COLOR OF PARANTHESIS AND TEXT IN /MSG 
+	vanishPrefix: &7[V] #PREFIX OF VANISHED USERS IN TAB (ONLY SEEN BY STAFF): Default - &7[V]
+	incorrectSyntax: There was an error while processing your command. Is the syntax correct?
 	noPerm: &cNo permission.
 	discordInvite: https://discord.gg/jDZJF8UUgE
 	storeLink: Your_Store_Link_Here
@@ -32,32 +38,32 @@ options:
 command /motd [<string>]:
 	aliases: /core:motd
 	trigger:
-		send "&e&lWelcome to {@networkName}!"
-		send "&eMOTD LINE 1"
-		send "&eMOTD LINE 2"
-		send "&eMOTD LINE 3"
-		send "&eMOTD LINE 4" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
+		send "{@primaryColor}&lWelcome to {@secondaryColor}{@networkName}!"
+		send "{@primaryColor}MOTD LINE 1"
+		send "{@primaryColor}MOTD LINE 2"
+		send "{@primaryColor}MOTD LINE 3"
+		send "{@primaryColor}MOTD LINE 4" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
 
 command /vote [<string>]:
 	aliases: /core:vote
 	trigger:
-		send "&e&lYou can vote for us at all of these links"
-		send "&eVOTE LINK 1"
-		send "&eVOTE LINK 2"
-		send "&EVOTE LINK 3"
-		send "&eVOTE LINK 4" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
+		send "{@primaryColor}&lYou can vote for us at all of these links"
+		send "{@primaryColor}VOTE LINK 1"
+		send "{@primaryColor}VOTE LINK 2"
+		send "{@primaryColor}VOTE LINK 3"
+		send "{@primaryColor}VOTE LINK 4" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
 
 command /rules [<string>]:
 	aliases: /core:rules
 	trigger:
-		send "&e&lOur server rules are listed below"
-		send "&eRULE 1"
-		send "&eRULE 2"
-		send "&eRULE 3"
-		send "&eRULE 4"
-		send "&eRULE 5"
-		send "&eRULE 6"
-		send "&eRULE 7" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
+		send "{@primaryColor}&lOur server rules are listed below"
+		send "{@primaryColor}RULE 1"
+		send "{@primaryColor}RULE 2"
+		send "{@primaryColor}RULE 3"
+		send "{@primaryColor}RULE 4"
+		send "{@primaryColor}RULE 5"
+		send "{@primaryColor}RULE 6"
+		send "{@primaryColor}RULE 7" #IF YOU WANT TO ADD MORE LINES JUST HIT ENTER -> TAB -> TYPE EXACTLY WHAT I HAVE
 
 command /alert [<string>]:
 	permission: core.alert
@@ -65,19 +71,19 @@ command /alert [<string>]:
 	aliases: /bc, /broadcast, /core:alert, /core:bc, /core:broadcast
 	trigger:
 		if arg-1 is not set:
-			send "&eUsage: /alert <message>"
+			send "{@primaryColor}Usage: {@secondaryColor}/alert &f<message>"
 		else:
 			broadcast "{@alertPrefix} %arg-1%"
 
 command /discord [<string>]:
 	aliases: /dc, /disc, /core:discord, /core:dc, /core:disc
 	trigger:
-		send "&eYou may join our Discord at &c{@discordInvite}&e!"
+		send "{@primaryColor}You may join our Discord at {@secondaryColor}{@discordInvite}&e!"
 
 command /store [<string>]:
 	aliases: /buy, /purchase, /core:store, /core:buy, /core:purchase
 	trigger:
-		send "&eYou may visit our Store at &c{@storeLink}&e!"
+		send "{@primaryColor}You may visit our Store at {@secondaryColor}{@storeLink}&e!"
 
 #CODE
 command /sc [<string>]:
@@ -101,7 +107,7 @@ command /sc [<string>]:
 							set {staffchat::%player's uuid%} to false
 							send "&cYou've exited Staff Chat."
 						else:
-							send "&cAn internal error occurred while attempting to perform this command. If you leave and rejoin, this should be fixed."
+							send "{@errorColor}An internal error occurred while attempting to perform this command. If you leave and rejoin, this should be fixed."
 on chat:
 	if message starts with "## ":
 		set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
@@ -117,48 +123,33 @@ on chat:
 				cancel event
 				send "&b[S] &3[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7: &b%uncolored message%" to all players where [input has permission "core.staffchat"]
 
-on chat:
-	if message starts with "@ ":
-		set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-		if player has permission "core.adminchat":
-			cancel event
-			set {_message} to last (length of message - 1) characters of message
-			send "&4[A] &c[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7:&c%uncolored {_message}%" to all players where [input has permission "core.adminchat"]
-on chat:
-	if {adminchat::%player's uuid%} is true:
-		if message does not start with "@ ":
-			if player has permission "core.adminchat":
-				set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-				cancel event
-				send "&4[A] &c[{@server-type}] %colored {rank-color::%player's uuid%}%%player%&7: &c%uncolored message%" to all players where [input has permission "core.adminchat"]
-
 command /report [<offlineplayer>] [<string>]:
 	aliases: /core:report
 	trigger:
 		if arg-1 is not set:
-			send "&eUsage: %colored {c1}%/report &f<player>"
+			send "{@primaryColor}Usage: {@secondaryColor}/report &f<player>"
 		else:
 			if arg-2 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}{@incorrectSyntax}"
 			else:
 				if arg-1 is player:
-					send "&cYou cannot report yourself!"
+					send "{@errorColor}You cannot report yourself!"
 				else:
 					if arg 1 is not online:
-						send "&cNo player matching &e%arg-1% &cis connected to this server."
+						send "{@errorColor}No player matching &e%arg-1% &cis connected to this server."
 					else:
 						set {_waited.report::%player%} to difference between {report::%player%.lastused} and now
 						if {_waited.report::%player%} is less than a minute:
-							send "&cYou must wait before reporting another player."
+							send "{@errorColor}You must wait before reporting another player."
 						else:
 							set {currentreport::%player%} to arg-1
-							open chest inventory with 1 rows named "&eReporting %arg-1%:" to player
+							open chest inventory with 1 rows named "{@primaryColor}Reporting %arg-1%:" to player
 							set slot 0 of player's current inventory to diamond sword named "&6Combat Hacks"
 							set slot 1 of player's current inventory to sugar named "&6Movement Hacks"
 							set slot 2 of player's current inventory to writable book named "&6Other Hacks"
 							set slot 3 of player's current inventory to web named "&6Other"
 on inventory click:
-	if name of player's current inventory contains "&eReporting %{currentreport::%player%}%":
+	if name of player's current inventory contains "{@primaryColor}Reporting %{currentreport::%player%}%":
 		cancel event
 		set {rank::%{currentreport::%player%}%} to placeholder "vault_prefix_color" from {currentreport::%player%}
 		set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
@@ -202,30 +193,27 @@ on quit:
 			send "&b[S] %colored {rank-color::%player's uuid%}%%player% &3disconnected from &b{@server-type}&3." to all players where [input has permission "core.leave"]
 
 command /ping [<offlineplayer>] [<string>]:
-    aliases: core:ping
-    trigger:
-        if arg-1 is not set:
-            set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-            send "%colored {rank-color::%player's uuid%}%%player%&e's ping: &c%player's ping%ms&e."
-        else:
-            if arg-1 is not online:
-                send "&cError: ""&e%arg-1%&c"" is not online."
-            else:
-                if arg-1's group is "default":
-                    set {rank-color::%arg-1's uuid%} to "&8"
-                else:
-                    set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-                send "%colored {rank-color::%arg-1's uuid%}%%arg-1%&e's ping: &c%arg-1's ping%ms&e."
+	aliases: core:ping
+	trigger:
+		if arg-1 is not set:
+			set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
+			send "%colored {rank-color::%player's uuid%}%%player%{@primaryColor}'s ping: {@secondaryColor}%player's ping%ms{@primaryColor}."
+		else:
+			if arg-1 is not online:
+				send "{@errorColor}Error: ""&e%arg-1%&c"" is not online."
+			else:
+				set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
+				send "%colored {rank-color::%arg-1's uuid%}%%arg-1%{@primaryColor}'s ping: {@secondaryColor}%arg-1's ping%ms{@primaryColor}."
 
 on place:
 	if {build::%player's uuid%} is set:
-			cancel event
+		cancel event
 on break:
 	if {build::%player's uuid%} is set:
-			cancel event
+		cancel event
 
 on join:
-    set {build.%player's uuid%} to true
+	set {build.%player's uuid%} to true
 
 command /buildmode [<string>]:
 	aliases: /build, /core:build, /core:buildmode
@@ -234,7 +222,7 @@ command /buildmode [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}{@incorrectSyntax}"
 			else:
 				if {build::%player's uuid%} is not set: 
 					set {build::%player's uuid%} to true
@@ -244,179 +232,35 @@ command /buildmode [<string>]:
 					send "&eToggled your build mode &aon&e."
 
 command /t [<offlineplayer>] [<string>]:
-	aliases: /core:t
+	aliases: /core:t, /core:tell, /core:pm, /core:w, /core:whisper, /core:m, /core:msg, /tell, /pm, /w, /whisper, /m, /msg
 	trigger:
 		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
+			send "{@primaryColor}Usage: {@secondaryColor}/message &f<target> <message>"
 		else:
 			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
+				send "{@primaryColor}Usage: {@secondaryColor}/message &f<target> <message>"
 			else:
 				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
+					send "{@errorColor}No player matching &e%arg-1% &cis connected to this server."
 				else:
 					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
 					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
+					send "{@msgColor}(To %colored {rank-color::%arg-1's uuid%}%%arg-1%{@msgColor}) %arg-2%"
+					send "{@msgColor}(From %colored {rank-color::%player's uuid%}%%player%{@msgColor}) %arg-2%" to arg-1
 					play sound "note.pling" with pitch 2 to arg-1
 					delete {msg::%player's uuid%::*}
 					add arg-1 to {msg::%player's uuid%::*}
 
-command /tell [<offlineplayer>] [<string>]:
-	aliases: /core:tell
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
-
-command /pm [<offlineplayer>] [<string>]:
-	aliases: /privatemessage, /core:pm, /core:privatemessage
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
-command /w [<offlineplayer>] [<string>]:
-	aliases: /core:w
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
-command /whisper [<offlineplayer>] [<string>]:
-	aliases: /core:whisper
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
-command /m [<offlineplayer>] [<string>]:
-	aliases: /core:m
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
-command /msg [<offlineplayer>] [<string>]:
-	aliases: /core:msg
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
-command /message [<offlineplayer>] [<string>]:
-	aliases: /core:message
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/message &f<target> <message>"
-		else:
-			if arg-2 is not set:
-				send "&eUsage: &e/message &f<target> <message>"
-			else:
-				if arg-1 is not online:
-					send "&cNo player matching &e%arg-1% &cis connected to this server."
-				else:
-					set {rank-color::%arg-1's uuid%} to placeholder "vault_prefix_color" from arg-1
-					set {rank-color::%player's uuid%} to placeholder "vault_prefix_color" from player
-					send "&e(To %colored {rank-color::%arg-1's uuid%}%%arg-1%&e) %arg-2%"
-					send "&e(From %colored {rank-color::%player's uuid%}%%player%&e) %arg-2%" to arg-1
-					play sound "note.pling" with pitch 2 to arg-1
-					delete {msg::%player's uuid%::*}
-					add arg-1 to {msg::%player's uuid%::*}
 command /r [<string>]:
-	aliases: /core:r
+	aliases: /core:r, /core:reply, /reply
 	trigger:
 		if arg-1 is not set:
-			send "&eUsage: &e/reply &f<target> <message>"
+			send "{@primaryColor}Usage: {@secondaryColor}/reply &f<target> <message>"
 		else:
 			if {msg::%player's uuid%::*} is set:
 				execute player command "/w %{msg::%player's uuid%::*}% %arg-1%"
 			else:
-				send "&cYou have no one to reply to!"
-command /reply [<string>]:
-	aliases: /core:reply
-	trigger:
-		if arg-1 is not set:
-			send "&eUsage: &e/reply &f<target> <message>"
-		else:
-			if {msg::%player's uuid%::*} is set:
-				execute player command "/w %{msg::%player's uuid%::*}% %arg-1%"
-			else:
-				send "&cYou have no one to reply to!"	
+				send "{@errorColor}You have no one to reply to!"
 
 command /clearchat [<string>]:
 	aliases: /cc, /core:clearchat, /core:cc
@@ -425,7 +269,7 @@ command /clearchat [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}{@incorrectSyntax}"
 			else:
 				if executor is not a player:
 					loop 500 times:
@@ -447,7 +291,7 @@ command /mutechat [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}{@incorrectSyntax}"
 			else:
 				if {ChatMode} is not set:
 					set {ChatMode} to 1
@@ -464,96 +308,79 @@ on chat:
 	if player does not have permission "core.mutechat.bypass":
 		if {ChatMode} is 1:
 			cancel event
-			send "&cYou cannot talk while the chat is muted."
+			send "{@errorColor}You cannot talk while the chat is muted."
 			stop
 		else:
 			stop
 
 command /freeze [<player>]:
-    aliases: /ss
-    permission: core.ss
-    permission message: {@noPerm}
-    trigger:
-        if argument has permission "core.ssexempt":
-            if arg-1 is set:
-                send "&cYou cannot freeze this player." to the player
-        else:
-            if arg-1 is set:
-                if {core.%argument%.frozen} isn't set:
-                    set {core.%argument%.frozen} to true
-                    set {core.%argument%.invincibility.frozen} to true
-                    send "&f█████████" to arg 1
-                    send "&f████&c█&f████" to arg 1
-                    send "&f███&c█&0█&c█&f███" to arg 1
-                    send "&f██&c█&6█&0█&6█&c█&f██" to arg 1
-                    send "&f██&c█&6█&0█&6█&c█&f██ &eYou've been frozen by a staff member." to arg 1
-                    send "&f██&c█&6█&0█&6█&c█&f██ &eIf you disconnect you will be &4&lBANNED&e." to arg 1
-                    send "&f█&c█&6█████&c█&f█ &ePlease connect to our discord." to arg 1
-                    send "&c█&6███&0█&6███&c█ &7{@discordInvite}" to arg 1
-                    send "&c█████████" to arg 1
-                    send "&f█████████" to arg 1
-                    send "&c%argument% &ehas been frozen." to the player
-                else:
-                    if {core.%argument%.frozen} is set:
-                        delete {core.%argument%.frozen}
-                        send "&eYou've been unfrozen. We are sorry for this inconvience." to the argument
-                        send "&eYou've unfroze &c%argument%" to the player
-                        reset arg-1's walk speed
-                        wait 5 seconds
-                        delete {core.%argument%.invincibility.frozen}
-        if arg-1 isn't set:
-            message "&eUsage: &c/freeze &f<target>"
+	aliases: /ss
+	permission: core.ss
+	permission message: {@noPerm}
+	trigger:
+		if argument has permission "core.ssexempt":
+			if arg-1 is set:
+				send "{@errorColor}You cannot freeze this player." to the player
+		else:
+			if arg-1 is set:
+				if {core.%argument%.frozen} isn't set:
+					set {core.%argument%.frozen} to true
+					set {core.%argument%.invincibility.frozen} to true
+					send "&f█████████" to arg 1
+					send "&f████&c█&f████" to arg 1
+					send "&f███&c█&0█&c█&f███" to arg 1
+					send "&f██&c█&6█&0█&6█&c█&f██" to arg 1
+					send "&f██&c█&6█&0█&6█&c█&f██ {@primaryColor}You've been frozen by a staff member." to arg 1
+					send "&f██&c█&6█&0█&6█&c█&f██ {@primaryColor}If you disconnect you will be &4&lBANNED&e." to arg 1
+					send "&f█&c█&6█████&c█&f█ {@primaryColor}Please connect to our discord." to arg 1
+					send "&c█&6███&0█&6███&c█ &7{@discordInvite}" to arg 1
+					send "&c█████████" to arg 1
+					send "&f█████████" to arg 1
+					send "&c%argument% &ehas been frozen." to the player
+				else:
+					if {core.%argument%.frozen} is set:
+						delete {core.%argument%.frozen}
+						send "{@primaryColor}You've been unfrozen. We are sorry for this inconvience." to the argument
+						send "{@primaryColor}You've unfroze {@secondaryColor}%argument%" to the player
+						reset arg-1's walk speed
+						wait 5 seconds
+						delete {core.%argument%.invincibility.frozen}
+		if arg-1 isn't set:
+			message "{@primaryColor}Usage: {@secondaryColor}&c/freeze &f<target>"
 
 on player move:
-    if {core.%player%.frozen} is true:
-        set player's walk speed to 0
+	if {core.%player%.frozen} is true:
+		set player's walk speed to 0
 
 on damage:
-    if {core.%victim%.invincibility.frozen} is true:
-        cancel event
-    if {core.%attacker%.invincibility.frozen} is true:
-        cancel event
+	if {core.%victim%.invincibility.frozen} is true:
+		cancel event
+	if {core.%attacker%.invincibility.frozen} is true:
+		cancel event
 on quit:
-    if {core.%player%.frozen} is true:
-        execute console command "{@banCommand}"
-        delete {core.%player%.frozen}
+	if {core.%player%.frozen} is true:
+		execute console command "{@banCommand}"
+		delete {core.%player%.frozen}
 
 command /tp [<offline player>] [<string>]:
-	aliases: /core:tp
+	aliases: /core:tp, /core:teleport, /teleport
 	trigger:
 		if executor does not have permission "core.teleport":
 			send "{@noPerm}"
 		else:
 			if arg-1 is not set:
-				send "&eUsage: &6/teleport &f<target1>"
+				send "{@primaryColor}Usage: {@secondaryColor}&6/teleport &f<target1>"
 			else:
 				if arg-2 is set:
-					send "&cThere was an error while processing your command. Is the syntax correct?"
+					send "{@errorColor}{@incorrectSyntax}"
 				else:
 					if arg-1 is not online:
-						send "&cNo player matching &e%arg-1% &cis connected to this server."
+						send "{@errorColor}}No player matching &e%arg-1% &cis connected to this server."
 					else:
 						teleport player to arg-1
-						send "&eYou've teleported to &c%arg-1%&e."
+						send "{@primaryColor}You've teleported to {@secondaryColor}%arg-1%{@primaryColor}."
 						send "&7&o[%player%: &eteleported to %arg-1%&7&o]" to all players where [input has permission "core.staff"]
-command /teleport [<offline player>] [<string>]:
-	aliases: /core:teleport
-	trigger:
-		if executor does not have permission "core.command.teleport":
-			send "{@noPerm}"
-		else:
-			if arg-1 is not set:
-				send "&eUsage: &6/teleport &f<target1>"
-			else:
-				if arg-2 is set:
-					send "&cThere was an error while processing your command. Is the syntax correct?"
-				else:
-					if arg-1 is not online:
-						send "&cNo player matching &e%arg-1% &cis connected to this server."
-					else:
-						teleport player to arg-1
-						send "&eYou've teleported to &c%arg-1%&e."
-						send "&7&o[%player%: &eteleported to %arg-1%&7&o]" to all players where [input has permission "core.staff"]
+
 command /tphere [<offline player>] [<string>]:       
 	aliases: /core:tphere, /teleporthere, /core:teleporthere
 	trigger:
@@ -561,16 +388,16 @@ command /tphere [<offline player>] [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is not set:
-				send "&eUsage: &6/teleporthere &f<target1>"
+				send "{@primaryColor}Usage: {@secondaryColor}&6/teleporthere &f<target1>"
 			else:
 				if arg-2 is set:
-					send "&cThere was an error while processing your command. Is the syntax correct?"
+					send "{@errorColor}{@incorrectSyntax}"
 				else:
 					if arg-1 is not online:
-						send "&cNo player matching &e%arg-1% &cis connected to this server."
+						send "{@errorColor}No player matching &e%arg-1% &cis connected to this server."
 					else:
 						teleport arg-1 to player
-						send "&eYou've teleported &c%arg-1% &eto &cyou&e."
+						send "{@primaryColor}You've teleported {@secondaryColor}%arg-1% {@primaryColor}to {@secondaryColor}you{@primaryColor}."
 						send "&7&o[%player%: &eteleported %arg-1% to %player%&7&o]" to all players where [input has permission "core.staff"]
 command /tpall [<string>]:       
 	aliases: /core:tpall
@@ -579,20 +406,20 @@ command /tpall [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}{@incorrectSyntax}"
 			else:
 				teleport all players to player
-				send "&eYou've teleported &call players &eto &cyou&e."
+				send "{@primaryColor}You've teleported {@secondaryColor}all players {@primaryColor}to {@secondaryColor}you{@primaryColor}."
 				send "&7&o[%player%: &eteleported all players to %player%&7&o]" to all players where [input has permission "core.staff"]
 
 command /list [<string>]:
 	aliases: /who, /core:list, /core:who
 	trigger:
 		if arg-1 is set:
-			send "&cThere was an error while processing your command. Is the syntax correct?"
+			send "{@errorColor}{@incorrectSyntax}"
 		else:
 			set {_a} to capitalized "{@server-type}"
-			send "&eThere are &c%number of all players - size of {vanished::*}% players &econnected to &c%{_a}%&e."
+			send "{@primaryColor}There are {@secondaryColor}%number of all players - size of {vanished::*}% players {@primaryColor}connected to {@secondaryColor}%{_a}%&e."
 
 command /v [<string>]:
 	aliases: /vanish, /core:vanish, /core:v
@@ -601,18 +428,18 @@ command /v [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}{@incorrectSyntax}"
 			else:
 				if {vanish::%player's uuid%} is not set:
 					if {vanished::*} doesn't contain player:
 						add player to {vanished::*}
-					send "&eYou're now &avanished&e."
+					send "{@primaryColor}}You're now &avanished{@primaryColor}."
 					send "&7&o[%player%: &evanished&7&o]" to all players where [input has permission "core.staff"]
 					set {vanish::%player's uuid%} to true
 				else:
 					if {vanished::*} contains player:
 						remove player from {vanished::*}
-					send "&eYou're now &cunvanished&e."
+					send "{@primaryColor}You're now &cunvanished{@primaryColor}."
 					send "&7&o[%player%: &eunvanished&7&o]" to all players where [input has permission "core.staff"]
 					delete {vanish::%player's uuid%}
 on damage:
@@ -633,7 +460,7 @@ every 1 second:
 		if {vanish::%loop-player's uuid%} is not set:
 			set loop-player's tab list name to "%colored {rank-color::%loop-player's uuid%}%%loop-player%"
 		else:
-			set loop-player's tab list name to "&7[V] %loop-player%"
+			set loop-player's tab list name to "{@vanishPrefix} %loop-player%"
 	loop all players:
 		loop all players:
 			if {vanish::%loop-player-1's uuid%} is true:
@@ -653,29 +480,21 @@ command /ccore [<string>]:
 		send "&eVersion: &c{@Version}"
 		send "&c&m------------------------------------------"	
 
+on load:
+	send "&c&m------------------------------------------"
+	send "&ecCore made by &ckoqel (Colton.##0001), Maximus_yt (Maximus_yt##4265 or Maximus_yt##0001)"
+	send "&eSpigot: https://www.spigotmc.org/members/koqel.1154279/"
+	send "&eVersion: &c{@Version}"
+	send "&c&m------------------------------------------"	
+
 on chat:
 	set {_lastchattedwait} to difference between {lastchatted::%player%} and now
 	if {_lastchattedwait} is less than 1 second:
 		if player does not have permission "core.staff":
 			cancel event
-			send "&cYou're on chat cooldown, please wait %difference between 1 second and {_lastchattedwait}%."
+			send "{@errorColor}You're on chat cooldown, please wait %difference between 1 second and {_lastchattedwait}%."
 	else:
 		set {lastchatted::%player%} to now
-on command:
-	if command contains ":":
-		if player is not op:
-			cancel event
-			send "&cThere was an error while processing your command. Is the syntax correct?"
-on command:
-	if command ends with "?":
-		cancel event
-		send "Unknown command. Type ""/help"" for help."
-on command:
-	if command is "luckperms" or "lp" or "perm" or "perms" or "permission" or "permissions" or "placeholderapi" or "papi" or "sk" or "skript" or "mvtp" or "multiversetp" or "mv teleport" or "mv tp" or "multiverse tp" or "multiversecore teleport" or "multiversecore tp" or "multiverse teleport" or "litebans" or "lbans":
-		if executor is not console:
-			if player is not op:
-				cancel event
-				send "Unknown command. Type ""/help"" for help."
 
 command /onlinestaff [<string>]:
 	aliases: /stafflist, /os, /sl, /core:sl, /core:os, /core:stafflist, /core:onlinestaff
@@ -684,24 +503,21 @@ command /onlinestaff [<string>]:
 			send "{@noPerm}"
 		else:
 			if arg-1 is set:
-				send "&cThere was an error while processing your command. Is the syntax correct?"
+				send "{@errorColor}}{@incorrectSyntax}"
 			else:
 				loop all players:
 					if loop-player has permission "core.staff":
 						set {rank-color::%loop-player's uuid%} to placeholder "vault_prefix_color" from loop-player
 						add "%colored {rank-color::%loop-player's uuid%}%%loop-player%&7" to {_onlinestaff::*}
 				if size of {_onlinestaff::*} is 0:
-					send "&eNo staff are currently online&e."
+					send "{@errorColor}No staff are currently online{@errorColor}."
 				else:
 					set {_a} to "%colored {_onlinestaff::*}%"
 					replace all " and" in {_a} with ","
 					send "&7Processing..."
 					wait 0.5 seconds
-					send "&e&lOnline Staff:"
-					send " &e&l{@server-type}: %{_a}%"
-
-on chat:
-	set chat format to "%colored player's prefix%%player%&7: &f%uncolored message%"
+					send "{@primaryColor}&lOnline Staff:"
+					send " {@primaryColor}&l{@server-type}: %{_a}%"
 
 command /gamemode [<string>]:
 	aliases: /gm, /core:gm, /core:gamemode
@@ -709,47 +525,47 @@ command /gamemode [<string>]:
 	permission message: {@noPerm}
 	trigger:
 		if arg-1 is not set:
-			send "&eUsage: &6/gamemode &f<mode>"
+			send "{@primaryColor}Usage: {@secondaryColor}&6/gamemode &f<mode>"
 		else if arg-1 is "creative":
 			if player has permission "core.gmc":
 				set player's gamemode to creative
 				send "&7&o[%player%: &eswitched to &ccreative &emode&7&o]" to all players where [input has permission "core.gamemode"]
-				send "&eSuccessfully set your gamemode to &cCreative&e."
+				send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Creative{@primaryColor}."
 			else:
 				send "{@noPerm}"
 		else if arg-1 is "survival":
 			if player has permission "core.gms":
 				set player's gamemode to survival
 				send "&7&o[%player%: &eswitched to &csurvival &emode&7&o]" to all players where [input has permission "core.gamemode"]
-				send "&eSuccessfully set your gamemode to &cSurvival&e."
+				send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Survival{@primaryColor}."
 			else:
 				send "{@noPerm}"
 		else if arg-1 is "spectator":
 			if player has permission "core.gmsp":
 				set player's gamemode to spectator
 				send "&7&o[%player%: &eswitched to &cspectator &emode&7&o]" to all players where [input has permission "core.gamemode"]
-				send "&eSuccessfully set your gamemode to &cSpectator&e."
+				send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Spectator{@primaryColor}."
 			else:
 				send "{@noPerm}"
 		else if arg-1 is "c":
 			if player has permission "core.gmc":
 				set player's gamemode to creative
 				send "&7&o[%player%: &eswitched to &ccreative &emode&7&o]" to all players where [input has permission "core.gamemode"]
-				send "&eSuccessfully set your gamemode to &cCreative&e."
+				send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Creative{@primaryColor}."
 			else:
 				send "{@noPerm}"
 		else if arg-1 is "s":
 			if player has permission "core.gms":
 				set player's gamemode to survival
 				send "&7&o[%player%: &eswitched to &csurvival &emode&7&o]" to all players where [input has permission "core.gamemode"]
-				send "&eSuccessfully set your gamemode to &cSurvival&e."
+				send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Survival{@primaryColor}."
 			else:
 				send "{@noPerm}"
 		else if arg-1 is "sp":
 			if player has permission "core.gmsp":
 				set player's gamemode to spectator
 				send "&7&o[%player%: &eswitched to &cspectator &emode&7&o]" to all players where [input has permission "core.gamemode"]
-				send "&eSuccessfully set your gamemode to &cSpectator&e."
+				send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Spectator{@primaryColor}."
 			else:
 				send "{@noPerm}"
 
@@ -759,7 +575,7 @@ command /gmc:
 	trigger:
 		set player's gamemode to creative
 		send "&7&o[%player%: &eswitched to &ccreative &emode&7&o]" to all players where [input has permission "core.gamemode"]
-		send "&eSuccessfully set your gamemode to &cCreative&e."
+		send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Creative{@primaryColor}."
 
 command /gms:
 	permission: core.gms
@@ -767,7 +583,7 @@ command /gms:
 	trigger:
 		set player's gamemode to survival
 		send "&7&o[%player%: &eswitched to &csurvival &emode&7&o]" to all players where [input has permission "core.gamemode"]
-		send "&eSuccessfully set your gamemode to &cSurvival&e."
+		send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Survival{@primaryColor}."
 
 command /gmsp:
 	permission: core.gmsp
@@ -775,4 +591,4 @@ command /gmsp:
 	trigger:
 		set player's gamemode to spectator
 		send "&7&o[%player%: &eswitched to &cspectator &emode&7&o]" to all players where [input has permission "core.gamemode"]
-		send "&eSuccessfully set your gamemode to &cSpectator&e."
+		send "{@primaryColor}Successfully set your gamemode to {@secondaryColor}Spectator{@primaryColor}."
